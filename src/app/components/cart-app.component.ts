@@ -4,6 +4,7 @@ import { PrductService } from '../services/prduct.service';
 import { CatalogComponent } from './catalog/catalog.component'; 
 import { CartComponent } from './cart/cart.component';
 import { CartItem } from '../models/cartItem';
+import { reduce } from 'rxjs';
 
 @Component({
   selector: 'app-cart-app',
@@ -14,6 +15,7 @@ export class CartAppComponent implements OnInit{
 
   products: Product[] = [];
   items: CartItem[] = [];
+  total: number = 0;
 
   constructor(private service: PrductService){}
 
@@ -37,10 +39,16 @@ export class CartAppComponent implements OnInit{
     } else {
       this.items = [... this.items, { product: {... product }, quantity: 1 }];
     }
+    this.calculateTotal();
   }
 
   onDeleteCart(id: number) {
     this.items = this.items.filter(item => item.product.id !== id);
+    this.calculateTotal(); 
+  }
+
+  calculateTotal() : void {
+    this.total = this.items.reduce( (accumulator, item) => accumulator + item.quantity * item.product.price , 0);
   }
 
 }
