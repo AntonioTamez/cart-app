@@ -1,33 +1,25 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter } from '@angular/core';
 import { CartItem } from '../../models/cartItem';
+import { Router } from '@angular/router';
+import { SharingDataService } from '../../services/sharing-data.service';
 
 @Component({
   selector: 'app-cart',
   imports: [],
   templateUrl: './cart.component.html'
 })
-export class CartComponent implements OnChanges {
-  @Input() items: CartItem[] = [];
-  @Input() total: number = 0;
-  @Output() idProductEventEmitter: EventEmitter<number> = new EventEmitter
+export class CartComponent {
 
-  ngOnChanges(changes: SimpleChanges): void { 
-    console.log('entroooo')
-    let itemsChanges = changes['items'];
-    this.calculateTotal(); 
-    this.saveSession(); 
+  constructor(private sharingDataService: SharingDataService, private router: Router) {
+    this.items = this.router.getCurrentNavigation()?.extras.state!['items'];
+    this.total = this.router.getCurrentNavigation()?.extras.state!['total'];
   }
+
+  items: CartItem[] = [];
+  total: number = 0;
+
 
   onDeleteCart(id: number) {
-    this.idProductEventEmitter.emit(id);
+     this.sharingDataService.idProductEventEmitter.emit(id);
   }
-
-  calculateTotal() : void {
-    this.total = this.items.reduce( (accumulator, item) => accumulator + item.quantity * item.product.price , 0);
-  }
-
-  saveSession(): void {
-    sessionStorage.setItem('cart', JSON.stringify(this.items));
-  }
-
 }

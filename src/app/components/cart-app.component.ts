@@ -5,12 +5,13 @@ import { CatalogComponent } from './catalog/catalog.component';
 import { CartComponent } from './cart/cart.component';
 import { CartItem } from '../models/cartItem';
 import { reduce } from 'rxjs';
-import { NavbarComponent } from './navbar/navbar.component';
-import { CartModalComponent } from './cart-modal/cart-modal.component';
+import { NavbarComponent } from './navbar/navbar.component'; 
+import { RouterOutlet } from '@angular/router';
+import { SharingDataService } from '../services/sharing-data.service';
 
 @Component({
   selector: 'app-cart-app',
-  imports: [CatalogComponent, NavbarComponent, CartModalComponent],
+  imports: [CatalogComponent, NavbarComponent, RouterOutlet],
   templateUrl: './cart-app.component.html'
 })
 export class CartAppComponent implements OnInit{
@@ -18,14 +19,16 @@ export class CartAppComponent implements OnInit{
   products: Product[] = [];
 
   items: CartItem[] = [];
- 
-  showCart: boolean = false;
 
-  constructor(private service: PrductService){}
+  total: number = 0;
+  
+  constructor(private sharingDataService: SharingDataService, private service: PrductService){}
 
   ngOnInit(): void { 
     this.products = this.service.findAll();
     this.items = JSON.parse(sessionStorage.getItem('cart')!) || []; 
+    this.calculateTotal();
+    this.onDeleteCart();
   }
 
   onAddCart(product: Product) : void {
@@ -44,18 +47,28 @@ export class CartAppComponent implements OnInit{
     } else {
       this.items = [... this.items, { product: {... product }, quantity: 1 }];
     } 
+
+    this.calculateTotal();
+    this.saveSession();
   }
 
-  onDeleteCart(id: number) {
-    this.items = this.items.filter(item => item.product.id !== id);
-    console.log(this.items.length)
-    if(this.items.length === 0) {
-      sessionStorage.removeItem('cart');
-    } 
+  onDeleteCart(): void {
+    this.sharingDataService.idProductEventEmitter.subscribe(id => {
+      console.log('se ha ejecutado el evento onAddCart ' + id)
+      this.items = this.items.filter(item => item.product.id !== id); 
+      if(this.items.length === 0) {
+        sessionStorage.removeItem('cart');
+      } 
+      this.calculateTotal();
+      this.saveSession();
+    });
   }
 
-  openCloseCart(): void {
-    this.showCart = !this.showCart;
+   calculateTotal() : void {
+    this.total = this.items.reduce( (accumulator, item) => accumulator + item.quantity * item.product.price , 0);
   }
 
+  saveSession(): void {
+    sessionStorage.setItem('cart', JSON.stringify(this.items));
+  }
 }
