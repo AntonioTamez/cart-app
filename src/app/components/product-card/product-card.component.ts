@@ -11,7 +11,7 @@ export class ProductCardComponent {
   @Input() product!: Product
   @Output() productEventEmit: EventEmitter<Product> = new EventEmitter();
 
-  onAddCart(product: Product) {
+  onAddCart(product: Product) { 
     this.productEventEmit.emit(product);
   }
 }

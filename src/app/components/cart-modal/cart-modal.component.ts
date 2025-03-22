@@ -9,15 +9,10 @@ import { CartItem } from '../../models/cartItem';
   styleUrl: './cart-modal.component.css'
 })
 export class CartModalComponent {
-  @Input() items: CartItem[] = [];
-  @Input() total: number = 0;
+  @Input() items: CartItem[] = []; 
 
   @Output() idProductEventEmitter  = new EventEmitter
   @Output() closeEventEmitter = new EventEmitter();
-
-
-  // @Output() idProductEventEmitter: EventEmitter<number> = new EventEmitter
-  // @Output() openEventEmitter: EventEmitter<void> = new EventEmitter();
 
   closeCart(): void {
     this.closeEventEmitter.emit();
