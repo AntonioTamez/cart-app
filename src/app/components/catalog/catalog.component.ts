@@ -1,23 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Product } from '../../models/product';
-import { ProductCardComponent } from '../product-card/product-card.component';
-import { Router } from '@angular/router';
+import { ProductCardComponent } from '../product-card/product-card.component'; 
 import { SharingDataService } from '../../services/sharing-data.service';
+import { PrductService } from '../../services/prduct.service';
 
 @Component({
   selector: 'app-catalog',
   imports: [ProductCardComponent],
   templateUrl: './catalog.component.html'
 })
-export class CatalogComponent {
+export class CatalogComponent implements OnInit {
 
-  products: Product[] = []
+  products!: Product[]
 
-  constructor(private sharingDataService: SharingDataService, private router: Router) {
-    this.products = this.router.getCurrentNavigation()?.extras.state!['products']
+  constructor(
+    private productService: PrductService,  
+    private sharingDataService: SharingDataService) {}
+
+  ngOnInit(): void {    
+      this.products = this.productService.findAll(); 
   }
 
   onAddCart(product: Product) {
     this.sharingDataService.productEventEmit.emit(product);
   }
 }
+
